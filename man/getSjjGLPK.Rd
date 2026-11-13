@@ -32,7 +32,7 @@
 }
 
 \value{
-  Returns the current scale factor $s_{jj}$ for column \code{j} of the
+  Returns the current scale factor $s_\code{jj}$ for column \code{j} of the
   specified problem object.
 }
 

@@ -25,7 +25,7 @@
     Column number j.
   }
   \item{sjj}{
-    Scale factor $s_{jj}$.
+    Scale factor $s_\code{jj}$.
   }
 }
 
