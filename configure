@@ -1489,6 +1489,52 @@ fi
 
 } # ac_fn_c_try_cpp
 
+# ac_fn_c_try_link LINENO
+# -----------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded.
+ac_fn_c_try_link ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  rm -f conftest.$ac_objext conftest$ac_exeext
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 test -x conftest$ac_exeext
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_retval=1
+fi
+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
+  # interfere with the next link command; also delete a directory that is
+  # left behind by Apple's compiler.  We do this before executing the actions.
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_link
+
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
 # Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -1652,52 +1698,6 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_header_compile
-
-# ac_fn_c_try_link LINENO
-# -----------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded.
-ac_fn_c_try_link ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  rm -f conftest.$ac_objext conftest$ac_exeext
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 test -x conftest$ac_exeext
-       }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_retval=1
-fi
-  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
-  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
-  # interfere with the next link command; also delete a directory that is
-  # left behind by Apple's compiler.  We do this before executing the actions.
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_link
 
 # ac_fn_c_check_func LINENO FUNC VAR
 # ----------------------------------
@@ -2131,6 +2131,9 @@ fi
 CC=`"${R_HOME}/bin/R" CMD config CC`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
+if test "${LDFLAGS+set}" != "set" ; then
+    LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS`
+fi
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3067,15 +3070,18 @@ ac_config_headers="$ac_config_headers src/config.h"
 
 ARGS_OK="FALSE"
 
-if test  -n "$PKG_CPPFLAGS" -a -n "$PKG_LIBS"  ; then
+if test -n "$PKG_CPPFLAGS" && test -n "$PKG_LIBS" ; then
     ARGS_OK="TRUE"
 else
-    if test  -n "$PKG_CPPFLAGS" -o -n "$PKG_LIBS"  ; then
+    if test -n "$PKG_CPPFLAGS" || test -n "$PKG_LIBS" ; then
         as_fn_error $? "Please set both variables: PKG_CPPFLAGS AND PKG_LIBS" "$LINENO" 5
     fi
 fi
 
 
+
+glpk_env_include="$GLPK_INCLUDE"
+glpk_env_lib="$GLPK_LIB"
 
 
 # Check whether --with-glpk-include was given.
@@ -3115,7 +3121,7 @@ fi
 
 if test  "$ARGS_OK" = "FALSE"  ; then
 
-    if test  -n "$GLPK_INCLUDE" -a -n "$GLPK_LIB"  ; then
+    if test -n "$GLPK_INCLUDE" && test -n "$GLPK_LIB" ; then
 
         if test  -d "$GLPK_INCLUDE"  ; then
             PKG_CPPFLAGS="-I${GLPK_INCLUDE}"
@@ -3133,6 +3139,7 @@ if test  "$ARGS_OK" = "FALSE"  ; then
     else
 
 
+        glpk_prefix_given="$prefix"
         if test "x$prefix" = xNONE; then
   $as_echo_n "checking for prefix by " >&6
   # Extract the first word of "glpsol", so it can be a program name with args.
@@ -3226,37 +3233,8 @@ $as_echo X"$prefix" |
 fi
 
 
-        if test  "$prefix" = "NONE"  ; then
+        if test  "$glpk_prefix_given" != "NONE"  ; then
 
-            { $as_echo "$as_me:${as_lineno-$LINENO}: No prefix given, trying /usr and /usr/local" >&5
-$as_echo "$as_me: No prefix given, trying /usr and /usr/local" >&6;}
-
-            if test  -d "/usr/include" -o -d "/usr/local/include"  ; then
-                PKG_CPPFLAGS="-I/usr/include -I/usr/local/include"
-            else
-                as_fn_error $? "directories /usr/include and /usr/local/include do not exist" "$LINENO" 5
-            fi
-
-            if test  -d "/usr/local/lib" -o -d "/usr/local/lib64" -o -d "/usr/lib" -o -d "/usr/lib64" ; then
-                PKG_LIBS=""
-                if test  -d "/usr/local/lib"  ; then
-                    PKG_LIBS="$PKG_LIBS -L/usr/local/lib"
-                fi
-                if test  -d "/usr/local/lib64"  ; then
-                    PKG_LIBS="$PKG_LIBS -L/usr/local/lib64"
-                fi
-                if test  -d "/usr/lib"  ; then
-                    PKG_LIBS="$PKG_LIBS -L/usr/lib"
-                fi
-                if test  -d "/usr/lib64"  ; then
-                    PKG_LIBS="$PKG_LIBS -L/usr/lib64"
-                fi
-                # PKG_LIBS="-L/usr/local/lib -Wl,-rpath /usr/local/lib"
-            else
-                as_fn_error $? "none of the directories /usr/local/lib, /usr/local/lib64, /usr/lib of /usr/lib64 exists" "$LINENO" 5
-            fi
-
-        else
 
             { $as_echo "$as_me:${as_lineno-$LINENO}: found executable glpsol in $prefix" >&5
 $as_echo "$as_me: found executable glpsol in $prefix" >&6;}
@@ -3267,7 +3245,7 @@ $as_echo "$as_me: found executable glpsol in $prefix" >&6;}
                 as_fn_error $? "directory $prefix/include does not exist" "$LINENO" 5
             fi
 
-            if test  -d "$prefix/lib" -o -d "$prefix/lib64"  ; then
+            if test -d "$prefix/lib" || test -d "$prefix/lib64" ; then
                 PKG_LIBS=""
                 if test  -d "$prefix/lib"  ; then
                     PKG_LIBS="$PKG_LIBS -L$prefix/lib"
@@ -3279,8 +3257,210 @@ $as_echo "$as_me: found executable glpsol in $prefix" >&6;}
                 as_fn_error $? "neither $prefix/lib nor $prefix/lib64 exist" "$LINENO" 5
             fi
 
+        else
+
+
+            glpk_cands=""
+            glpk_nl='
+'
+            glpk_legacy_ok="yes"
+            glpk_legacy_cpp=""
+            glpk_legacy_libs=""
+
+            if test  "$prefix" = "NONE"  ; then
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: No prefix given, trying /usr and /usr/local" >&5
+$as_echo "$as_me: No prefix given, trying /usr and /usr/local" >&6;}
+
+                if test -d "/usr/include" || test -d "/usr/local/include" ; then
+                    glpk_legacy_cpp="-I/usr/include -I/usr/local/include"
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: directories /usr/include and /usr/local/include do not exist" >&5
+$as_echo "$as_me: directories /usr/include and /usr/local/include do not exist" >&6;}
+                    glpk_legacy_ok="no"
+                fi
+
+                if test -d "/usr/local/lib" || test -d "/usr/local/lib64" || test -d "/usr/lib" || test -d "/usr/lib64" ; then
+                    if test  -d "/usr/local/lib"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L/usr/local/lib"
+                    fi
+                    if test  -d "/usr/local/lib64"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L/usr/local/lib64"
+                    fi
+                    if test  -d "/usr/lib"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L/usr/lib"
+                    fi
+                    if test  -d "/usr/lib64"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L/usr/lib64"
+                    fi
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: none of the directories /usr/local/lib, /usr/local/lib64, /usr/lib of /usr/lib64 exists" >&5
+$as_echo "$as_me: none of the directories /usr/local/lib, /usr/local/lib64, /usr/lib of /usr/lib64 exists" >&6;}
+                    glpk_legacy_ok="no"
+                fi
+
+            else
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: found executable glpsol in $prefix" >&5
+$as_echo "$as_me: found executable glpsol in $prefix" >&6;}
+
+                if test  -d "$prefix/include"  ; then
+                    glpk_legacy_cpp="-I$prefix/include"
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: directory $prefix/include does not exist" >&5
+$as_echo "$as_me: directory $prefix/include does not exist" >&6;}
+                    glpk_legacy_ok="no"
+                fi
+
+                if test -d "$prefix/lib" || test -d "$prefix/lib64" ; then
+                    if test  -d "$prefix/lib"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L$prefix/lib"
+                    fi
+                    if test  -d "$prefix/lib64"  ; then
+                        glpk_legacy_libs="$glpk_legacy_libs -L$prefix/lib64"
+                    fi
+                else
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: neither $prefix/lib nor $prefix/lib64 exist" >&5
+$as_echo "$as_me: neither $prefix/lib nor $prefix/lib64 exist" >&6;}
+                    glpk_legacy_ok="no"
+                fi
+
+            fi
+
+            if test  "$glpk_legacy_ok" = "yes"  ; then
+                glpk_cands="${glpk_cands}${glpk_legacy_cpp}|${glpk_legacy_libs}|original selection${glpk_nl}"
+            fi
+
+
+            glpk_fb_inc="$GLPK_INCLUDE"
+            if test -z "$glpk_fb_inc" ; then glpk_fb_inc="$glpk_env_include" ; fi
+            glpk_fb_lib="$GLPK_LIB"
+            if test -z "$glpk_fb_lib" ; then glpk_fb_lib="$glpk_env_lib" ; fi
+            glpk_fb_cpp=""
+            glpk_fb_libs=""
+            if test -n "$glpk_fb_inc" && test -d "$glpk_fb_inc" ; then glpk_fb_cpp="-I${glpk_fb_inc}" ; fi
+            if test -n "$glpk_fb_lib" && test -d "$glpk_fb_lib" ; then glpk_fb_libs="-L${glpk_fb_lib}" ; fi
+            if test -n "$glpk_fb_cpp" || test -n "$glpk_fb_libs" ; then
+                glpk_cands="${glpk_cands}${glpk_fb_cpp}|${glpk_fb_libs}|GLPK_INCLUDE/GLPK_LIB${glpk_nl}"
+            fi
+
+            glpk_pkgconfig="$PKG_CONFIG"
+            if test -z "$glpk_pkgconfig" && test -n "$host_alias" ; then
+                if command -v "${host_alias}-pkg-config" >/dev/null 2>&1 ; then
+                    glpk_pkgconfig="${host_alias}-pkg-config"
+                fi
+            fi
+            if test -z "$glpk_pkgconfig" ; then
+                glpk_pkgconfig="pkg-config"
+            fi
+            glpk_pcprog=`echo "$glpk_pkgconfig" | sed 's/[ 	].*$//'`
+            if command -v "$glpk_pcprog" >/dev/null 2>&1 ; then
+                if $glpk_pkgconfig --exists glpk >/dev/null 2>&1 ; then
+                    glpk_pc_cflags=`$glpk_pkgconfig --cflags glpk 2>/dev/null`
+                    glpk_pc_libs=`$glpk_pkgconfig --libs-only-L glpk 2>/dev/null`
+                    glpk_cands="${glpk_cands}${glpk_pc_cflags}|${glpk_pc_libs}|$glpk_pkgconfig glpk${glpk_nl}"
+                fi
+            fi
+
+            glpk_pfx_done=" "
+            glpk_save_IFS=$IFS
+            IFS=:
+            for glpk_pcdir in $PKG_CONFIG_PATH $EM_PKG_CONFIG_PATH ; do
+                case "$glpk_pcdir" in
+                    */lib/pkgconfig)   glpk_pfx=`echo "$glpk_pcdir" | sed 's|/lib/pkgconfig$||'` ;;
+                    */lib64/pkgconfig) glpk_pfx=`echo "$glpk_pcdir" | sed 's|/lib64/pkgconfig$||'` ;;
+                    */share/pkgconfig) glpk_pfx=`echo "$glpk_pcdir" | sed 's|/share/pkgconfig$||'` ;;
+                    *) glpk_pfx="" ;;
+                esac
+                case "$glpk_pfx_done" in
+                    *" $glpk_pfx "*) glpk_pfx="" ;;
+                esac
+                if test -n "$glpk_pfx" && test -f "$glpk_pfx/include/glpk.h" ; then
+                    glpk_pfx_done="$glpk_pfx_done$glpk_pfx "
+                    glpk_pfx_libs=""
+                    if test -d "$glpk_pfx/lib" ; then glpk_pfx_libs="$glpk_pfx_libs -L$glpk_pfx/lib" ; fi
+                    if test -d "$glpk_pfx/lib64" ; then glpk_pfx_libs="$glpk_pfx_libs -L$glpk_pfx/lib64" ; fi
+                    glpk_cands="${glpk_cands}-I$glpk_pfx/include|${glpk_pfx_libs}|prefix $glpk_pfx (PKG_CONFIG_PATH)${glpk_nl}"
+                fi
+            done
+            IFS=$glpk_save_IFS
+
+            glpk_cands="${glpk_cands}||compiler default search path${glpk_nl}"
+
+            if test  "${GMP}" != "no"  ; then
+                glpk_probe_link="-lglpk -lgmp"
+            else
+                glpk_probe_link="-lglpk"
+            fi
+
+            glpk_save_CPPFLAGS="$CPPFLAGS"
+            glpk_save_LIBS="$LIBS"
+            glpk_found="no"
+            glpk_save_IFS=$IFS
+            IFS="$glpk_nl"
+            for glpk_cand in $glpk_cands ; do
+                IFS=$glpk_save_IFS
+                glpk_cpp=${glpk_cand%%|*}
+                glpk_rest=${glpk_cand#*|}
+                glpk_lib=${glpk_rest%%|*}
+                glpk_desc=${glpk_rest#*|}
+                CPPFLAGS="$glpk_save_CPPFLAGS $glpk_cpp"
+                LIBS="$glpk_lib $glpk_probe_link $glpk_save_LIBS"
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for glpk.h and libglpk in $glpk_desc" >&5
+$as_echo_n "checking for glpk.h and libglpk in $glpk_desc... " >&6; }
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <float.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <glpk.h>
+int
+main ()
+{
+glp_prob *lp = glp_create_prob(); glp_delete_prob(lp);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  glpk_found="yes"
+else
+  glpk_found="no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $glpk_found" >&5
+$as_echo "$glpk_found" >&6; }
+                if test  "$glpk_found" = "yes"  ; then
+                    PKG_CPPFLAGS="$glpk_cpp"
+                    PKG_LIBS="$glpk_lib"
+                    break
+                fi
+                IFS="$glpk_nl"
+            done
+            IFS=$glpk_save_IFS
+            CPPFLAGS="$glpk_save_CPPFLAGS"
+            LIBS="$glpk_save_LIBS"
+
+                                    if test  "$glpk_found" = "no"  ; then
+                if test  "$glpk_legacy_ok" = "yes"  ; then
+                    PKG_CPPFLAGS="$glpk_legacy_cpp"
+                    PKG_LIBS="$glpk_legacy_libs"
+                fi
+                { $as_echo "$as_me:${as_lineno-$LINENO}: GLPK was not found; set GLPK_INCLUDE and GLPK_LIB (or use --with-glpk-include and --with-glpk-lib), or PKG_CPPFLAGS and PKG_LIBS." >&5
+$as_echo "$as_me: GLPK was not found; set GLPK_INCLUDE and GLPK_LIB (or use --with-glpk-include and --with-glpk-lib), or PKG_CPPFLAGS and PKG_LIBS." >&6;}
+            fi
 
         fi
+
     fi
 
     if test  "${GMP}" != "no"  ; then
@@ -3321,7 +3501,6 @@ fi
 LIBS="${PKG_LIBS}"
 CFLAGS="${CFLAGS} ${PKG_CFLAGS}"
 CPPFLAGS="${CPPFLAGS} ${PKG_CPPFLAGS}"
-
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep that handles long lines and -e" >&5
